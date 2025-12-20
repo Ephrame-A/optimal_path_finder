@@ -35,32 +35,54 @@ An intelligent Django-based chatbot that integrates with a C++ pathfinding engin
 ### Prerequisites
 - Python 3.12+
 - C++ compiler (g++)
-- Virtual environment support
+- pip (Python package manager)
+- git
 
-### Setup
+### Complete Setup from Scratch
 
-1. **Clone and navigate to the project**:
+1. **Clone the repository**:
    ```bash
-   cd /home/abrhame/projects/path_cpp
+   git clone https://github.com/abrham17/optimal_path_finder.git
+   cd optimal_path_finder
    ```
 
-2. **Activate virtual environment**:
+2. **Create virtual environment**:
    ```bash
+   python3 -m venv venv
    source venv/bin/activate
    ```
 
-3. **Database is already migrated**, but if needed:
+3. **Install Python dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Compile the C++ pathfinding module**:
+   ```bash
+   python setup.py build_ext --inplace
+   ```
+   This will create `pathfinding.cpython-*.so` that Django can import.
+
+5. **Navigate to Django project and run migrations**:
    ```bash
    cd travel_chatbot
    python manage.py makemigrations
    python manage.py migrate
    ```
 
-4. **C++ extension is already compiled**, but to rebuild:
+6. **Create a superuser (optional, for admin panel)**:
    ```bash
-   cd /home/abrhame/projects/path_cpp
-   python setup.py build_ext --inplace
+   python manage.py createsuperuser
    ```
+
+7. **Run the development server**:
+   ```bash
+   python manage.py runserver
+   ```
+
+8. **Access the application**:
+   - Chat Interface: http://localhost:8000
+   - Admin Panel: http://localhost:8000/admin
 
 ## Running the Application
 
@@ -213,4 +235,3 @@ MIT License - Feel free to use and modify!
 ## Author
 
 Built with ❤️ using Django + C++ integration
-# optimal_path_finder
