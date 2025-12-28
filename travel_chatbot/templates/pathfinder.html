@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path Finder Pro - Interactive Graph Visualizer</title>
+    <link rel="stylesheet" href="/static/css/pathfinder.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+                Path Finder Pro
+            </h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Cities</span>
+                    <span class="stat-value" id="cityCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Routes</span>
+                    <span class="stat-value" id="routeCount">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="control-section">
+                    <h3 class="section-title">Build Map</h3>
+                    <div class="form-group">
+                        <label>From City</label>
+                        <input type="text" id="fromCity" placeholder="Enter city name">
+                    </div>
+                    <div class="form-group">
+                        <label>To City</label>
+                        <input type="text" id="toCity" placeholder="Enter city name">
+                    </div>
+                    <div class="form-group">
+                        <label>Distance (km)</label>
+                        <input type="number" id="distance" placeholder="0" min="1">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="addRouteBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            Add Route
+                        </button>
+                        <button class="btn btn-danger" id="removeRouteBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                            Remove
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">Path Operations</h3>
+
+                    <button class="btn btn-feature" id="shortestPathBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                        </svg>
+                        Shortest Path
+                    </button>
+
+                    <button class="btn btn-feature" id="longestPathBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 12h18M8 6l6 6-6 6" />
+                        </svg>
+                        Longest Path
+                    </button>
+
+                    <button class="btn btn-feature" id="fewestStopsBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                        Fewest Stops
+                    </button>
+
+                    <button class="btn btn-feature" id="reachableBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M12 1v6m0 6v6M6 12H1m11 0h6" />
+                            <circle cx="12" cy="12" r="10" />
+                        </svg>
+                        Reachable Cities
+                    </button>
+
+                    <button class="btn btn-feature" id="multiCityBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        Plan Tour
+                    </button>
+
+                    <button class="btn btn-feature" id="cheapestNetworkBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg>
+                        Cheapest Network
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <button class="btn btn-secondary" id="clearAllBtn">Clear All</button>
+                    <button class="btn btn-secondary" id="loadSampleBtn">Load Sample</button>
+                </div>
+            </aside>
+
+            <!-- Graph Canvas -->
+            <main class="canvas-container">
+                <canvas id="graphCanvas"></canvas>
+                <div class="result-panel" id="resultPanel">
+                    <div class="result-header">
+                        <h4 id="resultTitle">Result</h4>
+                        <button class="close-btn" id="closeResultBtn">&times;</button>
+                    </div>
+                    <div class="result-content" id="resultContent"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal for inputs -->
+    <div class="modal" id="inputModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Enter Cities</h3>
+            <div id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="modalOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/pathfinder.js"></script>
+</body>
+
+</html>
