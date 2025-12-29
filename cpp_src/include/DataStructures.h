@@ -56,20 +56,66 @@ public:
     ~CustomQueue() { while (!empty()) dequeue(); }
 };
 
-// --- Min-Priority Queue ---
+// --- Min-Priority Queue
 struct PQNode { int weight; string city; };
+
 class MinPQ {
     vector<PQNode> heap;
+
+    // Helper: Move a node up to its correct position
+    void heapifyUp(int index) {
+        while (index > 0) {
+            int parent = (index - 1) / 2;
+            if (heap[index].weight < heap[parent].weight) {
+                swap(heap[index], heap[parent]);
+                index = parent;
+            } else {
+                break;
+            }
+        }
+    }
+
+    // Helper: Move a node down to its correct position
+    void heapifyDown(int index) {
+        int size = heap.size();
+        while (true) {
+            int left = 2 * index + 1;
+            int right = 2 * index + 2;
+            int smallest = index;
+
+            if (left < size && heap[left].weight < heap[smallest].weight)
+                smallest = left;
+            if (right < size && heap[right].weight < heap[smallest].weight)
+                smallest = right;
+
+            if (smallest != index) {
+                swap(heap[index], heap[smallest]);
+                index = smallest;
+            } else {
+                break;
+            }
+        }
+    }
+
 public:
     void push(int w, string c) {
         heap.push_back({w, c});
-        push_heap(heap.begin(), heap.end(), [](PQNode a, PQNode b) { return a.weight > b.weight; });
+        heapifyUp(heap.size() - 1);
     }
+
     PQNode pop() {
-        pop_heap(heap.begin(), heap.end(), [](PQNode a, PQNode b) { return a.weight > b.weight; });
-        PQNode top = heap.back(); heap.pop_back();
+        if (heap.empty()) return {0, ""}; // Safety check
+        
+        PQNode top = heap[0];
+        heap[0] = heap.back();
+        heap.pop_back();
+        
+        if (!heap.empty()) {
+            heapifyDown(0);
+        }
         return top;
     }
+
     bool empty() { return heap.empty(); }
 };
 
