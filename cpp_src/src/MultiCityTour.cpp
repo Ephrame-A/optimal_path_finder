@@ -1,6 +1,42 @@
 #include "../include/MultiCityTour.h"
 #include <map>
-#include <algorithm>
+#include <climits>
+
+void MultiCityTour::tspHelper(Graph& g, vector<string>& cities, vector<bool>& visited, 
+                              string current, int count, int cost, int& minCost, 
+                              vector<string>& currentPath, vector<string>& bestPath) {
+    if (count == (int)cities.size()) {
+        if (cost < minCost) {
+            minCost = cost;
+            bestPath = currentPath;
+        }
+        return;
+    }
+
+    for (size_t i = 0; i < cities.size(); ++i) {
+        if (!visited[i]) {
+            int distToNext = -1;
+            vector<Edge> neighbors = g.getNeighbors(current);
+            for (const auto& edge : neighbors) {
+                if (edge.dest == cities[i]) {
+                    distToNext = edge.weight;
+                    break;
+                }
+            }
+
+            if (distToNext != -1) {
+                visited[i] = true;
+                currentPath.push_back(cities[i]);
+                
+                tspHelper(g, cities, visited, cities[i], count + 1, 
+                          cost + distToNext, minCost, currentPath, bestPath);
+                
+                currentPath.pop_back();
+                visited[i] = false;
+            }
+        }
+    }
+}
 
 TourResult MultiCityTour::plan(Graph& g, vector<string> cities) {
     TourResult res;
@@ -12,16 +48,8 @@ TourResult MultiCityTour::plan(Graph& g, vector<string> cities) {
         return res;
     }
 
-    if (cities.size() == 1) {
-        res.found = true;
-        res.path = cities;
-        res.totalDistance = 0;
-        res.message = "Single city tour.";
-        return res;
-    }
-
     // Verify all cities exist
-    auto allNodes = g.getNodes();
+    vector<string> allNodes = g.getNodes();
     for (const auto& city : cities) {
         bool exists = false;
         for (const auto& node : allNodes) {
@@ -36,57 +64,25 @@ TourResult MultiCityTour::plan(Graph& g, vector<string> cities) {
         }
     }
 
-    // Simple greedy nearest neighbor heuristic for TSP
-    vector<string> path;
-    map<string, bool> visited;
-    string current = cities[0];
-    path.push_back(current);
-    visited[current] = true;
-    int totalDist = 0;
+    int minCost = INT_MAX;
+    vector<string> bestPath;
+    vector<string> currentPath;
+    vector<bool> visited(cities.size(), false);
 
-    for (size_t i = 1; i < cities.size(); i++) {
-        string nearest;
-        int minDist = INT_MAX;
-        
-        for (const auto& city : cities) {
-            if (visited[city]) continue;
-            
-            // Find distance from current to city
-            int dist = INT_MAX;
-            for (const auto& edge : g.getNeighbors(current)) {
-                if (edge.dest == city) {
-                    dist = edge.weight;
-                    break;
-                }
-            }
-            
-            if (dist < minDist) {
-                minDist = dist;
-                nearest = city;
-            }
-        }
-        
-        if (minDist == INT_MAX) {
-            res.message = "Cities are not all reachable from each other.";
-            return res;
-        }
-        
-        path.push_back(nearest);
-        visited[nearest] = true;
-        totalDist += minDist;
-        current = nearest;
+    // Start from the first city in the list
+    visited[0] = true;
+    currentPath.push_back(cities[0]);
+
+    tspHelper(g, cities, visited, cities[0], 1, 0, minCost, currentPath, bestPath);
+
+    if (minCost != INT_MAX) {
+        res.found = true;
+        res.path = bestPath;
+        res.totalDistance = minCost;
+        res.message = "Optimal tour planned successfully.";
+    } else {
+        res.message = "Could not find a path visiting all specified cities.";
     }
 
-    res.found = true;
-    res.path = path;
-    res.totalDistance = totalDist;
-    res.message = "Tour planned successfully.";
     return res;
-}
-
-void MultiCityTour::tspHelper(Graph& g, vector<string>& cities, vector<bool>& visited, 
-                              string current, int count, int cost, int& minCost, 
-                              vector<string>& currentPath, vector<string>& bestPath) {
-    // This is a placeholder for exact TSP - not implemented due to complexity
-    // The plan() function uses greedy heuristic instead
 }
